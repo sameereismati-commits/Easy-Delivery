@@ -9,9 +9,12 @@ import SwiftUI
 
 @main
 struct EasyDeliveryApp: App {
+    @StateObject private var cart = CartViewModel()
+
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(cart)
         }
     }
 }

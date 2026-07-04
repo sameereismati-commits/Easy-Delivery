@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ProductListView: View {
     @StateObject private var viewModel = ProductListViewModel()
+    @EnvironmentObject private var cart: CartViewModel
 
     var body: some View {
         NavigationStack {
@@ -28,11 +29,29 @@ struct ProductListView: View {
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                             }
+
+                            Spacer()
+
+                            Button {
+                                cart.add(product)
+                            } label: {
+                                Image(systemName: "cart.badge.plus")
+                            }
+                            .buttonStyle(.borderless)
                         }
                     }
                 }
             }
             .navigationTitle("Easy Delivery")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    NavigationLink {
+                        CartView()
+                    } label: {
+                        Label("Cart (\(cart.totalItemCount))", systemImage: "cart")
+                    }
+                }
+            }
             .task {
                 await viewModel.loadProducts()
             }
@@ -42,4 +61,5 @@ struct ProductListView: View {
 
 #Preview {
     ProductListView()
+        .environmentObject(CartViewModel())
 }
