@@ -8,12 +8,19 @@
 import SwiftUI
 
 struct ContentView: View {
+    @EnvironmentObject private var auth: AuthViewModel
+
     var body: some View {
-        ProductListView()
+        if auth.isLoggedIn {
+            ProductListView()
+        } else {
+            LoginView()
+        }
     }
 }
 
 #Preview {
     ContentView()
         .environmentObject(CartViewModel())
+        .environmentObject(AuthViewModel())
 }
