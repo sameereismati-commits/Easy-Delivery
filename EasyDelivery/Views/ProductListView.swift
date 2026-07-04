@@ -6,43 +6,37 @@ struct ProductListView: View {
 
     var body: some View {
         NavigationStack {
-            Group {
-                if viewModel.isLoading {
-                    ProgressView("Loading products…")
-                } else if let errorMessage = viewModel.errorMessage {
-                    Text(errorMessage)
-                        .foregroundStyle(.secondary)
-                } else {
-                    List(viewModel.products) { product in
-                        HStack {
-                            AsyncImage(url: URL(string: product.thumbnail)) { image in
-                                image.resizable().scaledToFit()
-                            } placeholder: {
-                                ProgressView()
-                            }
-                            .frame(width: 50, height: 50)
+            HStack(spacing: 0) {
+                CategorySidebarView(categories: viewModel.categories, selected: $viewModel.selectedCategory)
+                    .frame(width: 110)
 
-                            VStack(alignment: .leading) {
-                                Text(product.title)
-                                    .font(.headline)
-                                Text(product.price, format: .currency(code: "USD"))
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
-                            }
+                Divider()
 
-                            Spacer()
-
-                            Button {
-                                cart.add(product)
-                            } label: {
-                                Image(systemName: "cart.badge.plus")
+                Group {
+                    if viewModel.isLoading {
+                        ProgressView("Loading products…")
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else if let errorMessage = viewModel.errorMessage {
+                        Text(errorMessage)
+                            .foregroundStyle(.secondary)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else if viewModel.products.isEmpty {
+                        ContentUnavailableView("No products found", systemImage: "magnifyingglass")
+                    } else {
+                        List(viewModel.products) { product in
+                            NavigationLink(value: product) {
+                                ProductRow(product: product)
                             }
-                            .buttonStyle(.borderless)
                         }
+                        .listStyle(.plain)
                     }
                 }
             }
             .navigationTitle("Easy Delivery")
+            .searchable(text: $viewModel.searchText, prompt: "Search products")
+            .navigationDestination(for: Product.self) { product in
+                ProductDetailView(product: product)
+            }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     NavigationLink {
@@ -53,9 +47,38 @@ struct ProductListView: View {
                 }
             }
             .task {
-                await viewModel.loadProducts()
+                await viewModel.initialLoad()
             }
         }
+    }
+}
+
+private struct ProductRow: View {
+    let product: Product
+
+    var body: some View {
+        HStack(spacing: 12) {
+            AsyncImage(url: URL(string: product.thumbnail)) { image in
+                image.resizable().scaledToFit()
+            } placeholder: {
+                ProgressView()
+            }
+            .frame(width: 60, height: 60)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(product.title)
+                    .font(.headline)
+                Text(product.category.capitalized)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            Text(product.price, format: .currency(code: "USD"))
+                .font(.headline)
+        }
+        .padding(.vertical, 4)
     }
 }
 
