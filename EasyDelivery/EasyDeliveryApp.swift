@@ -11,12 +11,14 @@ import SwiftUI
 struct EasyDeliveryApp: App {
     @StateObject private var cart = CartViewModel()
     @StateObject private var auth = AuthViewModel()
+    @StateObject private var orderViewModel = OrderViewModel()
 
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(cart)
                 .environmentObject(auth)
+                .environmentObject(orderViewModel)
         }
     }
 }

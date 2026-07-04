@@ -36,11 +36,20 @@ struct CartView: View {
                         }
                     }
 
-                    HStack {
-                        Text("Subtotal")
-                        Spacer()
-                        Text(cart.subtotal, format: .currency(code: "USD"))
-                            .bold()
+                    VStack(spacing: 12) {
+                        HStack {
+                            Text("Subtotal")
+                            Spacer()
+                            Text(cart.subtotal, format: .currency(code: "USD"))
+                                .bold()
+                        }
+
+                        NavigationLink("Checkout") {
+                            CheckoutView()
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .controlSize(.large)
+                        .frame(maxWidth: .infinity)
                     }
                     .padding()
                 }
